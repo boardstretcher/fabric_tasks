@@ -10,7 +10,7 @@ from pprint import *
 epoch_time = int(time.time())
 
 def bootstrap(ip,hostname):
-        """Update and configure a clean Centos 6.6 VM for FreePBX
+        """Update and configure a clean Centos 6.5 machine for FreePBX
         """
         env.user = 'root'
         with settings(host_string='{0}'.format(ip)):
@@ -49,8 +49,8 @@ def bootstrap(ip,hostname):
                 run('sed -i "s/HOSTNAME=localhost.localdomain/HOSTNAME={0}/g" /etc/sysconfig/network'.format(hostname))
 
                 # set nameserver and search domain
-                # run('echo "search yournetwork.local" > /etc/resolv.conf')
-                # run('echo "nameserver yournameserver.local" >> /etc/resolv.conf')
+                run('echo "search dev.local" > /etc/resolv.conf')
+                run('echo "nameserver nameserver.local" >> /etc/resolv.conf')
 
                 # test for xentools cd and install
                 cd_mounted = run('dmesg | grep xvdd')
@@ -61,15 +61,15 @@ def bootstrap(ip,hostname):
                 # reboot
                 reboot()
                 print('ATTENTION: bootstrapping is finished. You may now run the install function.')
-                print('**************')
-                print('WARNING: iptables and selinux have been disabled, please configure them to suit your environment')
-                print('and re-enable them.')
 
 def install(ip):
-        """Install asterisk 12 and FreePBX on the Centos 6.6 VM
+        """Install asterisk 12 and FreePBX whatever on the Centos 6.6 VM
         """
         env.user = 'root'
         with settings(host_string='{0}'.format(ip)):
+                # just in case
+                run('yum install -y speex-devel gsm-devel libuuid-devel')
+
                 # asterisk and its dependencies
                 run('wget http://srtp.sourceforge.net/srtp-1.4.2.tgz')
                 run('tar zxvf srtp-1.4.2.tgz')
@@ -90,14 +90,13 @@ def install(ip):
                         run('./configure --prefix=/usr/')
                         run('make; make install;')
                         run('ldconfig')
-
                 run('wget http://downloads.asterisk.org/pub/telephony/asterisk/asterisk-13-current.tar.gz')
                 run('tar xf asterisk-13-current.tar.gz')
                 with cd('asterisk-13*'):
                         run('./configure')
                         run('make; make install;')
 
-                run('yum install -y asterisk-sounds*')
+                # run('yum install -y asterisk-sounds*')
 
                 with shell_env(VER_FREEPBX='12.0'):
                         with cd('/usr/src'):
@@ -106,6 +105,7 @@ def install(ip):
                                 run('git checkout release/${VER_FREEPBX}')
 
                 run('adduser asterisk -M -c "Asterisk User"')
+
                 run('touch /var/run/asterisk/asterisk.pid')
                 run('chown -R asterisk. /var/run/asterisk')
                 run('chown -R asterisk. /etc/asterisk')
@@ -118,9 +118,10 @@ def install(ip):
                 run('sed -i "s/AllowOverride None/AllowOverride All/g" /etc/httpd/conf/httpd.conf')
                 run('service httpd restart')
                 run('ldconfig')
-                run('rm -rf /var/www/html') # php_installer failes without this
+                run('rm -rf /var/www/html')
 
                 with shell_env(ASTERISK_DB_PW='amp109'):
+
                         with cd('/usr/src/freepbx'):
                                 run('mysqladmin -u root create asterisk')
                                 run('mysqladmin -u root create asteriskcdrdb')
@@ -141,8 +142,13 @@ def install(ip):
                                 run('amportal a ma install sipstation')
                                 run('amportal a ma installall')
                                 run('amportal chown')
+                                run('amportal a ma refreshsignatures')
                                 run('amportal a reload')
 
+                                run('mysql -u root -D asterisk -e "UPDATE modules SET signature = ( SELECT signature FROM ( SELECT signature FROM modules WHERE id = 2 ) t ) WHERE id = 1;"')
+
                                 run('ln -s /var/lib/asterisk/moh /var/lib/asterisk/mohmp3')
+
                                 run('service httpd restart')
                                 run('amportal restart')
+                                print('ATTENTION: That last command might have bombed out, thats fine...')
