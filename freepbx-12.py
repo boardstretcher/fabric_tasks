@@ -118,6 +118,7 @@ def install(ip):
                 run('sed -i "s/AllowOverride None/AllowOverride All/g" /etc/httpd/conf/httpd.conf')
                 run('service httpd restart')
                 run('ldconfig')
+                run('rm -rf /var/www/html') # php_installer failes without this
 
                 with shell_env(ASTERISK_DB_PW='amp109'):
                         with cd('/usr/src/freepbx'):
