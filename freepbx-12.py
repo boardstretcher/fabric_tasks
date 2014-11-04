@@ -91,9 +91,9 @@ def install(ip):
                         run('make; make install;')
                         run('ldconfig')
 
-                run('wget http://downloads.asterisk.org/pub/telephony/asterisk/asterisk-12-current.tar.gz')
-                run('tar xf asterisk-12-current.tar.gz')
-                with cd('asterisk-12*'):
+                run('wget http://downloads.asterisk.org/pub/telephony/asterisk/asterisk-13-current.tar.gz')
+                run('tar xf asterisk-13-current.tar.gz')
+                with cd('asterisk-13*'):
                         run('./configure')
                         run('make; make install;')
 
