@@ -145,4 +145,4 @@ def install(ip):
 
                                 run('ln -s /var/lib/asterisk/moh /var/lib/asterisk/mohmp3')
                                 run('service httpd restart')
-                                run('amportal start')
+                                run('amportal restart')
