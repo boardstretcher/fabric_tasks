@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 pprint(locals())
 
 epoch_time = int(time.time())
+# https://raw.githubusercontent.com/boardstretcher/fabric_tasks/master/files/sources.list
 
 def centos6(ip,hostname):
         """Update and configure a clean Centos 6.5 machine
@@ -46,6 +47,38 @@ def centos6(ip,hostname):
                 # reboot
                 reboot()
                 print('ATTENTION: bootstrapping is finished.')
+
+def debian7(ip,hostname):
+        """Update and configure a clean Debian 7 Wheezy Machine
+        """
+        env.user = 'root'
+        with settings(host_string='{0}'.format(ip)):
+
+                # initial repositories
+		with run('cd /etc/apt'):
+			run('wget https://raw.githubusercontent.com/boardstretcher/fabric_tasks/master/files/sources.list')
+		with run('cd /etc'):
+			run('wget https://raw.githubusercontent.com/boardstretcher/fabric_tasks/master/files/DIR_COLORS')
+
+                # update system
+                run('apt-get update')
+                run('apt-get install vim-tiny')
+                run('cd /usr/bin; ln -s vi vim')
+
+                # temporary disable iptables
+                run('apt-get install ufw')
+                run('ufw disable')
+
+                # set hostname
+                run('echo "127.0.0.1 {0} localhost localhost.localdomain localhost4 localhost4.localdomain4" > /etc/hosts'.format(hostname))
+                run('echo "::1 localhost localhost.localdomain localhost6 localhost6.localdomain6" >> /etc/hosts'.format(hostname))
+
+                # set nameserver and search domain
+                run('echo "search signs365.local" > /etc/resolv.conf')
+                run('echo "nameserver 192.168.55.4" >> /etc/resolv.conf')
+
+                # reboot
+                reboot()
 
 def xentools(ip):
         """Install xentools on a xen-based VM
