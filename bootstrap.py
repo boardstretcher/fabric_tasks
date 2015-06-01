@@ -55,8 +55,8 @@ def debian7(ip,hostname):
         with settings(host_string='{0}'.format(ip)):
 
                 # initial repositories
-		run('cd /etc/apt; wget https://raw.githubusercontent.com/boardstretcher/fabric_tasks/master/files/sources.list')
-		run('cd /etc; wget https://raw.githubusercontent.com/boardstretcher/fabric_tasks/master/files/DIR_COLORS')
+		put('files/sources.list', '/etc/apt/')
+		put('files/DIR_COLORS', '/etc/')
 
                 # update system
                 run('apt-get update')

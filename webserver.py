@@ -14,10 +14,10 @@ def install(ip,hostname):
         """
         env.user = 'root'
         with settings(host_string='{0}'.format(ip)):
-		put('sources.list', '/etc/apt/sources.list')
+		put('files/sources.list', '/etc/apt/sources.list')
 		run('apt-get install -y dselect')
 		run('apt-get update')
-		put('package.list', '/root/package.list')
+		put('files/package.list', '/root/package.list')
                 run('aptitude install -y $(cat /root/package.list | awk \'{print $1}\')')
 
 
