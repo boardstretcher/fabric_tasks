@@ -55,18 +55,15 @@ def debian7(ip,hostname):
         with settings(host_string='{0}'.format(ip)):
 
                 # initial repositories
-		with run('cd /etc/apt'):
-			run('wget https://raw.githubusercontent.com/boardstretcher/fabric_tasks/master/files/sources.list')
-		with run('cd /etc'):
-			run('wget https://raw.githubusercontent.com/boardstretcher/fabric_tasks/master/files/DIR_COLORS')
+		run('cd /etc/apt; wget https://raw.githubusercontent.com/boardstretcher/fabric_tasks/master/files/sources.list')
+		run('cd /etc; wget https://raw.githubusercontent.com/boardstretcher/fabric_tasks/master/files/DIR_COLORS')
 
                 # update system
                 run('apt-get update')
-                run('apt-get install vim-tiny')
-                run('cd /usr/bin; ln -s vi vim')
+                run('apt-get -y install vim-tiny')
 
                 # temporary disable iptables
-                run('apt-get install ufw')
+                run('apt-get -y install ufw')
                 run('ufw disable')
 
                 # set hostname
