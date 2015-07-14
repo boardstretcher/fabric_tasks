@@ -55,10 +55,12 @@ def debian7(ip,hostname):
         with settings(host_string='{0}'.format(ip)):
 
                 # initial repositories
-		put('files/sources.list', '/etc/apt/')
-		put('files/DIR_COLORS', '/etc/')
+                put('files/sources.list', '/etc/apt/')
+                put('files/DIR_COLORS', '/etc/')
 
                 # update system
+                run('wget http://www.dotdeb.org/dotdeb.gpg')
+                run('apt-key add dotdeb.gpg')
                 run('apt-get update')
                 run('apt-get -y install vim-tiny')
 
@@ -82,9 +84,9 @@ def xentools(ip):
         """
         env.user = 'root'
         with settings(host_string='{0}'.format(ip)):
-    	# test for xentools cd and install
-        	cd_mounted = run('dmesg | grep xvdd')
-                if cd_mounted.succeeded:
-                        run('mount /dev/xvdd /mnt')
-                        run('yum install -y /mnt/Linux/xe-guest-utilities-6.2.0-1120.i386.rpm /mnt/Linux/xe-guest-utilities-xenstore-6.2.0-1120.i386.rpm')
-		print('ATTENTION: xentools installed')
+        # test for xentools cd and install
+            cd_mounted = run('dmesg | grep xvdd')
+            if cd_mounted.succeeded:
+            	run('mount /dev/xvdd /mnt')
+                run('yum install -y /mnt/Linux/xe-guest-utilities-6.2.0-1120.i386.rpm /mnt/Linux/xe-guest-utilities-xenstore-6.2.0-1120.i386.rpm')
+        print('ATTENTION: xentools installed')
